@@ -1,0 +1,9 @@
+Building 1337
+
+See doc/readme-qt.rst for instructions on building 1337 QT,
+the intended-for-end-users, nice-graphical-interface, reference
+implementation of 1337.
+
+See doc/build-*.txt for instructions on building 1337d,
+the intended-for-services, no-graphical-interface, reference
+implementation of 1337.
