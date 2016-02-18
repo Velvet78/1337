@@ -1137,7 +1137,6 @@ static const char *strDNSSeed[][2] = {
 				{"1337.no-ip.org", "1337.no-ip.org"},
 		    	{"104.219.53.59", "104.219.53.59"},
 				{"stratumtest.ddns.net", "stratumtest.ddns.net"},
-				{"yourmothersuckblackdicks.net", "yourmothersuckblackdicks.net"},
 		    	{"64.90.187.238", "64.90.187.238"},
 				{"89.204.139.80", "89.204.139.80"},
 				{"136.243.50.159", "136.243.50.159"},
