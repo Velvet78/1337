@@ -186,6 +186,12 @@ public:
         return Write(std::string("minversion"), nVersion);
     }
 
+	bool WriteStakeSplitThreshold(uint64_t nStakeSplitThreshold)
+	{
+		nWalletDBUpdated++;
+		return Write(std::string("stakeSplitThreshold"), nStakeSplitThreshold);
+	}
+	
     bool ReadAccount(const std::string& strAccount, CAccount& account);
     bool WriteAccount(const std::string& strAccount, const CAccount& account);
 private:

@@ -8,12 +8,19 @@
 #include "transactionfilterproxy.h"
 #include "guiutil.h"
 #include "guiconstants.h"
+#include "askpassphrasedialog.h"
+
+#include "main.h"
+#include "bitcoinrpc.h"
+#include "util.h"
+
+double GetPoSKernelPS2(const CBlockIndex* pindex);
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
 
 #define DECORATION_SIZE 64
-#define NUM_ITEMS 3
+#define NUM_ITEMS 4
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -31,6 +38,7 @@ public:
 
         QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
         QRect mainRect = option.rect;
+        painter->setBackground(QBrush(QColor(255,255,255),Qt::SolidPattern));
         QRect decorationRect(mainRect.topLeft(), QSize(DECORATION_SIZE, DECORATION_SIZE));
         int xspace = DECORATION_SIZE + 8;
         int ypad = 6;
@@ -49,7 +57,7 @@ public:
         {
             foreground = qvariant_cast<QColor>(value);
         }
-
+foreground = QColor(51,51,51);
         painter->setPen(foreground);
         painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address);
 
@@ -64,6 +72,7 @@ public:
         else
         {
             foreground = option.palette.color(QPalette::Text);
+            foreground = QColor(51,153,51);
         }
         painter->setPen(foreground);
         QString amountText = BitcoinUnits::formatWithUnit(unit, amount, true);
@@ -76,6 +85,9 @@ public:
         painter->setPen(option.palette.color(QPalette::Text));
         painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
 
+        painter->setPen(QColor(204,204,204));
+        painter->drawLine(QPoint(mainRect.left(), mainRect.bottom()), QPoint(mainRect.right(), mainRect.bottom()));
+        painter->drawLine(QPoint(amountRect.left()-6, mainRect.top()), QPoint(amountRect.left()-6, mainRect.bottom()));
         painter->restore();
     }
 
@@ -109,12 +121,35 @@ OverviewPage::OverviewPage(QWidget *parent) :
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
 
+	
     // init "out of sync" warning labels
-    ui->labelWalletStatus->setText("(" + tr("out of sync") + ")");
-    ui->labelTransactionsStatus->setText("(" + tr("out of sync") + ")");
+    ui->labelWalletStatus->setText("(" + tr("Out of sync with the 1337 network") + ")");
+    ui->labelTransactionsStatus->setText("(" + tr("Out of sync with the 1337 network") + ")");
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
+    if(GetBoolArg("-chart", true))
+    {
+        // setup Plot
+        // create graph
+        ui->diffplot->addGraph();
+
+        // give the axes some labels:
+        ui->diffplot->xAxis->setLabel("Block Height");
+
+        // set the pens
+        ui->diffplot->graph(0)->setPen(QPen(QColor(40, 110, 173)));
+        ui->diffplot->graph(0)->setLineStyle(QCPGraph::lsLine);
+
+        // set axes label fonts:
+        QFont label = font();
+        ui->diffplot->xAxis->setLabelFont(label);
+        ui->diffplot->yAxis->setLabelFont(label);
+    }
+    else
+    {
+        ui->diffplot->setVisible(false);
+    }
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
@@ -128,6 +163,81 @@ OverviewPage::~OverviewPage()
     delete ui;
 }
 
+void OverviewPage::updatePlot(int count)
+{
+    static int64_t lastUpdate = 0;
+    // Double Check to make sure we don't try to update the plot when it is disabled
+    if(!GetBoolArg("-chart", true)) { return; }
+    if (GetTime() - lastUpdate < 180) { return; } // This is just so it doesn't redraw rapidly during syncing
+
+    if(fDebug) { printf("Plot: Getting Ready: pindexBest: %p\n", pindexBest); }
+    	
+		bool fProofOfStake = (nBestHeight > LAST_POW_BLOCK + 100);
+    if (fProofOfStake)
+        ui->diffplot->yAxis->setLabel("24H Network Weight");
+		else
+        ui->diffplot->yAxis->setLabel("Difficulty");
+
+    int numLookBack = 1440;
+    double diffMax = 0;
+    const CBlockIndex* pindex = GetLastBlockIndex(pindexBest, fProofOfStake);
+    int height = pindex->nHeight;
+    int xStart = std::max<int>(height-numLookBack, 0) + 1;
+    int xEnd = height;
+
+    // Start at the end and walk backwards
+    int i = numLookBack-1;
+    int x = xEnd;
+
+    // This should be a noop if the size is already 2000
+    vX.resize(numLookBack);
+    vY.resize(numLookBack);
+
+    if(fDebug) {
+        if(height != pindex->nHeight) {
+            printf("Plot: Warning: nBestHeight and pindexBest->nHeight don't match: %d:%d:\n", height, pindex->nHeight);
+        }
+    }
+
+    if(fDebug) { printf("Plot: Reading blockchain\n"); }
+
+    const CBlockIndex* itr = pindex;
+    while(i >= 0 && itr != NULL)
+    {
+        if(fDebug) { printf("Plot: Processing block: %d - pprev: %p\n", itr->nHeight, itr->pprev); }
+        vX[i] = itr->nHeight;
+        if (itr->nHeight < xStart) {
+        	xStart = itr->nHeight;
+        }
+        vY[i] = fProofOfStake ? GetPoSKernelPS2(itr) : GetDifficulty(itr);
+        diffMax = std::max<double>(diffMax, vY[i]);
+
+        itr = GetLastBlockIndex(itr->pprev, fProofOfStake);
+        i--;
+        x--;
+    }
+
+    if(fDebug) { printf("Plot: Drawing plot\n"); }
+
+    ui->diffplot->graph(0)->setData(vX, vY);
+
+    // set axes ranges, so we see all data:
+    ui->diffplot->xAxis->setRange((double)xStart, (double)xEnd);
+    ui->diffplot->yAxis->setRange(0, diffMax+(diffMax/10));
+
+    ui->diffplot->xAxis->setAutoSubTicks(false);
+    ui->diffplot->yAxis->setAutoSubTicks(false);
+    ui->diffplot->xAxis->setSubTickCount(0);
+    ui->diffplot->yAxis->setSubTickCount(0);
+
+    ui->diffplot->replot();
+
+    if(fDebug) { printf("Plot: Done!\n"); }
+    	
+    lastUpdate = GetTime();
+}
+ 
+
 void OverviewPage::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBalance, qint64 immatureBalance)
 {
     int unit = model->getOptionsModel()->getDisplayUnit();
@@ -139,13 +249,17 @@ void OverviewPage::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBa
     ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, stake));
     ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(unit, unconfirmedBalance));
     ui->labelImmature->setText(BitcoinUnits::formatWithUnit(unit, immatureBalance));
-    ui->labelTotal->setText(BitcoinUnits::formatWithUnit(unit, balance + stake + unconfirmedBalance + immatureBalance));
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
     bool showImmature = immatureBalance != 0;
     ui->labelImmature->setVisible(showImmature);
     ui->labelImmatureText->setVisible(showImmature);
+}
+
+void OverviewPage::setNumTransactions(int count)
+{
+    ui->labelNumTransactions->setText(QLocale::system().toString(count));
 }
 
 void OverviewPage::setModel(WalletModel *model)
@@ -159,8 +273,7 @@ void OverviewPage::setModel(WalletModel *model)
         filter->setLimit(NUM_ITEMS);
         filter->setDynamicSortFilter(true);
         filter->setSortRole(Qt::EditRole);
-        filter->setShowInactive(false);
-        filter->sort(TransactionTableModel::Status, Qt::DescendingOrder);
+        filter->sort(TransactionTableModel::Date, Qt::DescendingOrder);
 
         ui->listTransactions->setModel(filter);
         ui->listTransactions->setModelColumn(TransactionTableModel::ToAddress);
@@ -169,10 +282,13 @@ void OverviewPage::setModel(WalletModel *model)
         setBalance(model->getBalance(), model->getStake(), model->getUnconfirmedBalance(), model->getImmatureBalance());
         connect(model, SIGNAL(balanceChanged(qint64, qint64, qint64, qint64)), this, SLOT(setBalance(qint64, qint64, qint64, qint64)));
 
+        setNumTransactions(model->getNumTransactions());
+        connect(model, SIGNAL(numTransactionsChanged(int)), this, SLOT(setNumTransactions(int)));
+
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
     }
 
-    // update the display unit, to not use the default ("BTC")
+    // update the display unit, to not use the default ("1337")
     updateDisplayUnit();
 }
 

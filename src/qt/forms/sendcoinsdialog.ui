@@ -114,7 +114,7 @@
           <item>
            <widget class="QLabel" name="labelCoinControlAutomaticallySelected">
             <property name="text">
-             <string>automatically selected</string>
+             <string>Automatically Selected</string>
             </property>
             <property name="margin">
              <number>5</number>
@@ -450,6 +450,9 @@
              </item>
              <item>
               <layout class="QFormLayout" name="formLayoutCoinControl4">
+			   <property name="fieldGrowthPolicy"> 
+                <enum>QFormLayout::AllNonFixedFieldsGrow</enum> 
+               </property>
                <property name="horizontalSpacing">
                 <number>10</number>
                </property>
@@ -540,7 +543,7 @@
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayoutCoinControl4" stretch="0,0,0">
+         <layout class="QHBoxLayout" name="horizontalLayoutCoinControl4" stretch="0,0,0,0">
           <property name="spacing">
            <number>12</number>
           </property>
@@ -554,9 +557,16 @@
            <number>5</number>
           </property>
           <item>
+		  <widget class="QCheckBox" name="returnChangeCheckBox">
+ 		  <property name="text">
+ 		  <string>Return Change</string>
+ 		  </property>
+		  </widget>
+ 		  </item>
+ 		  <item>		  
            <widget class="QCheckBox" name="checkBoxCoinControlChange">
             <property name="text">
-             <string>custom change address</string>
+             <string>Custom Change Address</string>
             </property>
            </widget>
           </item>
@@ -598,6 +608,81 @@
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayoutCoinControl4a" stretch="0,0,0,0">
+          <property name="alignment" >
+         <set>Qt::AlignLeft</set>
+          </property>
+          <property name="spacing">
+           <number>12</number>
+          </property>
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
+          <property name="topMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
+           <item> 
+           <widget class="QCheckBox" name="splitBlockCheckBox"> 
+            <property name="text"> 
+             <string>SplitBlock</string> 
+            </property> 
+           </widget> 
+          </item> 
+          <item> 
+           <widget class="QLabel" name="labelBlocksToMakeText"> 
+            <property name="enabled"> 
+             <bool>false</bool> 
+            </property> 
+            <property name="text"> 
+             <string># Of Blocks To Make:</string> 
+            </property> 
+           </widget> 
+          </item>
+          <item> 
+           <widget class="QLineEdit" name="splitBlockLineEdit"> 
+            <property name="enabled"> 
+             <bool>false</bool> 
+            </property> 
+            <property name="sizePolicy"> 
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed"> 
+              <horstretch>0</horstretch> 
+              <verstretch>0</verstretch> 
+             </sizepolicy> 
+            </property> 
+            <property name="maximumSize"> 
+             <size> 
+              <width>100</width> 
+              <height>16777215</height> 
+             </size> 
+            </property> 
+           </widget> 
+          </item> 
+          <item> 
+           <widget class="QLabel" name="labelBlockSizeText"> 
+            <property name="enabled"> 
+             <bool>false</bool> 
+            </property> 
+            <property name="text"> 
+             <string>Block Size:</string> 
+            </property> 
+           </widget> 
+          </item> 
+          <item> 
+           <widget class="QLabel" name="labelBlockSize"> 
+            <property name="enabled"> 
+             <bool>false</bool> 
+            </property> 
+            <property name="text"> 
+             <string>0.00 1337</string> 
+            </property>
+           </widget> 
+           </item>
+         </layout>
+        </item>
+        <item>		
          <spacer name="verticalSpacerCoinControl">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -626,7 +711,7 @@
         <x>0</x>
         <y>0</y>
         <width>830</width>
-        <height>165</height>
+		<height>172</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">

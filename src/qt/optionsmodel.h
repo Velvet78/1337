@@ -32,6 +32,7 @@ public:
         DetachDatabases,   // bool
         Language,          // QString
         CoinControlFeatures, // bool
+        Use1337Theme,  // bool		
         OptionIDRowCount,
     };
 
