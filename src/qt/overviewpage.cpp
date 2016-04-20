@@ -20,7 +20,7 @@ double GetPoSKernelPS2(const CBlockIndex* pindex);
 #include <QPainter>
 
 #define DECORATION_SIZE 64
-#define NUM_ITEMS 4
+#define NUM_ITEMS 3
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
