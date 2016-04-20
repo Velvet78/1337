@@ -6,6 +6,10 @@
 #include "walletdb.h"
 #include "guiutil.h"
 
+// shared UI settings in guiutil.h
+bool fUse1337Theme;
+
+
 OptionsModel::OptionsModel(QObject *parent) :
     QAbstractListModel(parent)
 {
@@ -46,6 +50,7 @@ void OptionsModel::Init()
     fMinimizeToTray = settings.value("fMinimizeToTray", false).toBool();
     fMinimizeOnClose = settings.value("fMinimizeOnClose", false).toBool();
     fCoinControlFeatures = settings.value("fCoinControlFeatures", false).toBool();
+    fUse1337Theme = settings.value("fUse1337Theme", true).toBool();	
     nTransactionFee = settings.value("nTransactionFee").toLongLong();
     nReserveBalance = settings.value("nReserveBalance").toLongLong();
     language = settings.value("language", "").toString();
@@ -176,6 +181,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("language", "");
         case CoinControlFeatures:
             return QVariant(fCoinControlFeatures);
+        case Use1337Theme:
+            return QVariant(fUse1337Theme);			
         default:
             return QVariant();
         }
@@ -276,6 +283,10 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             emit coinControlFeaturesChanged(fCoinControlFeatures);
             }
             break;
+        case Use1337Theme:
+            fUse1337Theme = value.toBool();
+            settings.setValue("fUse1337Theme", fUse1337Theme);
+            break;			
         default:
             break;
         }

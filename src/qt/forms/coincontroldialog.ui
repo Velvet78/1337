@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
+    <width>1100</width>
     <height>500</height>
    </rect>
   </property>
@@ -471,6 +471,19 @@
      </column>
      <column>
       <property name="text">
+       <string>Confirmations</string>
+      </property>
+      <property name="toolTip">
+       <string>Confirmed</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Weight</string>
+      </property>
+     </column>	 	 
+     <column>
+      <property name="text">
        <string>Label</string>
       </property>
      </column>
@@ -482,14 +495,6 @@
      <column>
       <property name="text">
        <string>Date</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Confirmations</string>
-      </property>
-      <property name="toolTip">
-       <string>Confirmed</string>
       </property>
      </column>
      <column>

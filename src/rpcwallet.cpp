@@ -8,9 +8,11 @@
 #include "bitcoinrpc.h"
 #include "init.h"
 #include "base58.h"
+#include <boost/lexical_cast.hpp>
 
 using namespace json_spirit;
 using namespace std;
+using namespace boost;
 
 int64_t nWalletUnlockTime;
 static CCriticalSection cs_nWalletUnlockTime;
@@ -109,6 +111,29 @@ Value getinfo(const Array& params, bool fHelp)
     return obj;
 }
 
+double GetPoSKernelPS2(const CBlockIndex* pindex)
+{
+    int nPoSInterval = 72;
+    double dStakeKernelsTriedAvg = 0;
+    int nStakesHandled = 0, nStakesTime = 0;
+
+    const CBlockIndex* pindexPrevStake = NULL;
+
+    while (pindex && nStakesHandled < nPoSInterval)
+    {
+        if (pindex->IsProofOfStake())
+        {
+            dStakeKernelsTriedAvg += GetDifficulty(pindex) * 4294967296.0;
+            nStakesTime += pindexPrevStake ? (pindexPrevStake->nTime - pindex->nTime) : 0;
+            pindexPrevStake = pindex;
+            nStakesHandled++;
+        }
+
+        pindex = pindex->pprev;
+    }
+
+    return nStakesTime ? dStakeKernelsTriedAvg / nStakesTime : 0;
+}
 
 Value getnewpubkey(const Array& params, bool fHelp)
 {
@@ -750,7 +775,7 @@ Value sendmany(const Array& params, bool fHelp)
     // Send
     CReserveKey keyChange(pwalletMain);
     int64_t nFeeRequired = 0;
-    bool fCreated = pwalletMain->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired);
+    bool fCreated = pwalletMain->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, 1);
     if (!fCreated)
     {
         if (totalAmount + nFeeRequired > pwalletMain->GetBalance())
@@ -1773,4 +1798,50 @@ Value makekeypair(const Array& params, bool fHelp)
     result.push_back(Pair("PrivateKey", HexStr<CPrivKey::iterator>(vchPrivKey.begin(), vchPrivKey.end())));
     result.push_back(Pair("PublicKey", HexStr(key.GetPubKey().Raw())));
     return result;
+}
+
+Value setstakesplitthreshold(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "setstakesplitthreshold <1 - 999,999>\n"
+            "This will set the output size of your stakes to never be below this number\n");
+    
+	uint64_t nStakeSplitThreshold = boost::lexical_cast<int>(params[0].get_str());
+	if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet to use this feature");
+	if (nStakeSplitThreshold > 999999)
+		return "out of range - setting split threshold failed";
+	
+	CWalletDB walletdb(pwalletMain->strWalletFile);
+	LOCK(pwalletMain->cs_wallet);
+	{
+		bool fFileBacked = pwalletMain->fFileBacked;
+		
+		Object result;
+		pwalletMain->nStakeSplitThreshold = nStakeSplitThreshold;
+		result.push_back(Pair("split stake threshold set to ", int(pwalletMain->nStakeSplitThreshold)));
+		if(fFileBacked)
+		{
+			walletdb.WriteStakeSplitThreshold(nStakeSplitThreshold);
+			result.push_back(Pair("saved to wallet.dat ", "true"));
+		}
+		else
+			result.push_back(Pair("saved to wallet.dat ", "false"));
+		
+		return result;
+	}
+}
+
+Value getstakesplitthreshold(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "getstakesplitthreshold\n"
+            "Returns the set splitstakethreshold\n");
+
+	Object result;
+	result.push_back(Pair("split stake threshold set to ", int(pwalletMain->nStakeSplitThreshold)));
+	return result;
+
 }
