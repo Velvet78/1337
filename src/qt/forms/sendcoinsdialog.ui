@@ -114,7 +114,7 @@
           <item>
            <widget class="QLabel" name="labelCoinControlAutomaticallySelected">
             <property name="text">
-             <string>automatically selected</string>
+             <string>Automatically Selected</string>
             </property>
             <property name="margin">
              <number>5</number>
@@ -566,7 +566,7 @@
  		  <item>		  
            <widget class="QCheckBox" name="checkBoxCoinControlChange">
             <property name="text">
-             <string>custom change address</string>
+             <string>Custom Change Address</string>
             </property>
            </widget>
           </item>
