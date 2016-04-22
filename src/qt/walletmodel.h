@@ -97,7 +97,7 @@ public:
     // Wallet backup
     bool backupWallet(const QString &filename);
 	
-    void getStakeWeightFromValue(const qint64& nTime, const qint64& nValue, quint64& nWeight);
+    void getStakeWeightFromValue(const int64_t& nTime, const int64_t& nValue, uint64_t& nWeight);
  
 	void setSplitBlock(bool fSplitBlock); 
     bool getSplitBlock();	
