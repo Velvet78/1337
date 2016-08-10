@@ -37,7 +37,7 @@ static const int64_t MIN_TX_FEE = 10000;
 static const int64_t MIN_RELAY_TX_FEE = MIN_TX_FEE;
 static const int64_t MAX_MONEY = 235311570 * COIN;
 static const int64_t COIN_YEAR_REWARD = 1337 * CENT; // 1337%, After fork1 668.5%, after fork2 334.25%
-static const unsigned int FORK_TIME = 1472125032; //  Sun, 03 Apr 2016 15:00:00 GMT
+static const unsigned int FORK_TIME = 1472125032; //  Thu, 25 Aug 2016 11:37:12 GMT
 
 inline bool MoneyRange(int64_t nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
 // Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp.
