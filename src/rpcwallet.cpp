@@ -1739,6 +1739,7 @@ Value checkwallet(const Array& params, bool fHelp)
         result.push_back(Pair("mismatched spent coins", nMismatchSpent));
         result.push_back(Pair("amount in question", ValueFromAmount(nBalanceInQuestion)));
         result.push_back(Pair("orphan blocks removed", nOrphansFound));
+        
     }
     return result;
 }
