@@ -1808,13 +1808,13 @@ Value setstakesplitthreshold(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "setstakesplitthreshold <1 - 9,999,999>\n"
+            "setstakesplitthreshold <1 - 25,000,000>\n"
             "This will set the output size of your stakes to never be below this number\n");
     
 	uint64_t nStakeSplitThreshold = boost::lexical_cast<int>(params[0].get_str());
 	if (pwalletMain->IsLocked())
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet to use this feature");
-	if (nStakeSplitThreshold > 9999999)
+	if (nStakeSplitThreshold > 25000000)
 		return "out of range - setting split threshold failed";
 	
 	CWalletDB walletdb(pwalletMain->strWalletFile);
