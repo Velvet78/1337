@@ -1728,9 +1728,7 @@ Value checkwallet(const Array& params, bool fHelp)
 
     int nMismatchSpent;
     int64_t nBalanceInQuestion;
-    int nOrphansFound;
-    pwalletMain->FixSpentCoins(nMismatchSpent, nBalanceInQuestion,nOrphansFound);
-    if (nMismatchSpent == 0 && nOrphansFound == 0)
+    pwalletMain->FixSpentCoins(nMismatchSpent, nBalanceInQuestion, true);
     Object result;
     if (nMismatchSpent == 0)
         result.push_back(Pair("wallet check passed", true));
@@ -1738,9 +1736,7 @@ Value checkwallet(const Array& params, bool fHelp)
     {
         result.push_back(Pair("mismatched spent coins", nMismatchSpent));
         result.push_back(Pair("amount in question", ValueFromAmount(nBalanceInQuestion)));
-        result.push_back(Pair("orphan blocks removed", nOrphansFound));
-        
-    }
+            }
     return result;
 }
 
