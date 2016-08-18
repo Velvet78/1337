@@ -1094,11 +1094,13 @@ int64_t GetProofOfStakeRewardV3(int64_t nCoinAge, int64_t nFees)
 int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees, unsigned int nTime)
 {
 	int64_t nReward = 0;
-	if(nTime > FORK_TIME)
+	if(nTime > FORK_TIME2)
 		nReward = GetProofOfStakeRewardV3((int64_t)nCoinAge, nFees);
-	else
+	else if(nTime > FORK_TIME)
 		nReward = GetProofOfStakeRewardV2((int64_t)nCoinAge, nFees);
-	
+    else
+	   nReward = GetProofOfStakeRewardV1((int64_t)nCoinAge, nFees);
+    
 	return nReward;
 }
 
