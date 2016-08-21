@@ -2356,7 +2356,7 @@ void CWallet::FixSpentCoins(int& nMismatchFound, int64_t& nBalanceInQuestion, bo
          	 if (!fCheckOnly)
          	 {
          	 	EraseFromWallet(hash);
-         	 	NotifyTransactionChanged(this, hash, CT_UPDATED); 
+         	 	NotifyTransactionChanged(this, hash, CT_DELETED); 
          	 }
          }
     }
