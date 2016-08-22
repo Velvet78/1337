@@ -2301,7 +2301,6 @@ set< set<CTxDestination> > CWallet::GetAddressGroupings()
 
 // 1337coin: check 'spent' consistency between wallet and txindex
 // 1337coin: fix wallet spent state according to txindex
-// 1337coin: remove orphan Coinbase and Coinstake 
 void CWallet::FixSpentCoins(int& nMismatchFound, int64_t& nBalanceInQuestion, bool fCheckOnly)
 {
     nMismatchFound = 0;
@@ -2319,7 +2318,7 @@ void CWallet::FixSpentCoins(int& nMismatchFound, int64_t& nBalanceInQuestion, bo
     	uint256 hash = pcoin->GetHash();
         // Find the corresponding transaction index
         CTxIndex txindex;
-         if (!txdb.ReadTxIndex(hash, txindex) && !(pcoin->IsCoinBase() || pcoin->IsCoinStake()))
+         if (!txdb.ReadTxIndex(pcoin->GetHash(), txindex))
             continue;
         for (unsigned int n=0; n < pcoin->vout.size(); n++)
         {
@@ -2347,20 +2346,8 @@ void CWallet::FixSpentCoins(int& nMismatchFound, int64_t& nBalanceInQuestion, bo
                     pcoin->WriteToDisk();
                 }
             }
-            NotifyTransactionChanged(this, hash, CT_UPDATED);
         }
-        
-        if((pcoin->IsCoinBase() || pcoin->IsCoinStake()) && pcoin->GetDepthInMainChain() == 0)
-         {
-         	printf("FixSpentCoins %s orphaned generation tx %s\n", fCheckOnly ? "found" : "removed", hash.ToString().c_str());
-         	 if (!fCheckOnly)
-         	 {
-         	 	EraseFromWallet(hash);
-         	 	NotifyTransactionChanged(this, hash, CT_DELETED); 
-         	 }
-         }
-    }
-}
+
 
 // ppcoin: disable transaction (only for coinstake)
 void CWallet::DisableTransaction(const CTransaction &tx)
