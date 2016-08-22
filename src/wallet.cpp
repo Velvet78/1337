@@ -2354,7 +2354,7 @@ void CWallet::DisableTransaction(const CTransaction &tx)
 {
     if (!tx.IsCoinStake() || !IsFromMe(tx))
         return; // only disconnecting coinstake requires marking input unspent
-
+}
     LOCK(cs_wallet);
     BOOST_FOREACH(const CTxIn& txin, tx.vin)
     {
