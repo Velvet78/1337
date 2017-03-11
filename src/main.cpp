@@ -1102,10 +1102,23 @@ int64_t GetProofOfStakeRewardV4(int64_t nCoinAge, int64_t nFees)
     return nSubsidy + nFees;
 }
 
+// miner's coin stake reward based on coin age spent (coin-days)
+int64_t GetProofOfStakeRewardV5(int64_t nCoinAge, int64_t nFees)
+{
+    int64_t nSubsidy = nCoinAge * COIN_YEAR_REWARD * 33 / (365 * 33 + 8) / 16;
+
+    if (fDebug && GetBoolArg("-printcreation"))
+        printf("GetProofOfStakeReward(): create=%s nCoinAge=%"PRId64"\n", FormatMoney(nSubsidy).c_str(), nCoinAge);
+
+    return nSubsidy + nFees;
+}
+
 int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees, unsigned int nTime)
 {
 	int64_t nReward = 0;
-	if(nTime > FORK_TIME3)
+	if(nTime > FORK_TIME4)
+		nReward = GetProofOfStakeRewardV5((int64_t)nCoinAge, nFees);
+	else if(nTime > FORK_TIME3)
 		nReward = GetProofOfStakeRewardV4((int64_t)nCoinAge, nFees);
 	else if(nTime > FORK_TIME2)
 		nReward = GetProofOfStakeRewardV3((int64_t)nCoinAge, nFees);
@@ -2979,7 +2992,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         CAddress addrFrom;
         uint64_t nNonce = 1;
         vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
-        if (pfrom->nVersion < (GetAdjustedTime() > FORK_TIME3 ? MIN_PROTO_VERSION_FORK : MIN_PROTO_VERSION))
+        if (pfrom->nVersion < (GetAdjustedTime() > FORK_TIME4 ? MIN_PROTO_VERSION_FORK : MIN_PROTO_VERSION))
         {
             // Since February 20, 2012, the protocol is initiated at version 209,
             // and earlier versions are no longer supported
@@ -3057,7 +3070,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         static int nAskedForBlocks = 0;
         if (!pfrom->fClient && !pfrom->fOneShot &&
             (pfrom->nStartingHeight > (nBestHeight - 144)) &&
-            (pfrom->nVersion < NOBLKS_VERSION_START || pfrom->nVersion > (GetAdjustedTime() > FORK_TIME3 ? NOBLKS_VERSION_END_FORK : NOBLKS_VERSION_END)) &&
+            (pfrom->nVersion < NOBLKS_VERSION_START || pfrom->nVersion > (GetAdjustedTime() > FORK_TIME4 ? NOBLKS_VERSION_END_FORK : NOBLKS_VERSION_END)) &&
              (nAskedForBlocks < 1 || vNodes.size() <= 1))
         {
             nAskedForBlocks++;
