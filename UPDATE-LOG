@@ -11,4 +11,10 @@ Add - Weight column to Coin Control
 Qt wallet look update
 QR code fix
 
+v1.7.0.0
 
+Added checkpoints
+Added new pos fork
+Added Fix invalid signature with crafted length
+Added MiniUPnPc API 14 & Boost::Array
+Removed all traces of IRC
