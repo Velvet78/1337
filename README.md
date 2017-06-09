@@ -1,6 +1,6 @@
 1337 Current Version
 ===========================
-Version: 1.7.0.0
+Version: 1.8.0.0
 
 IF YOU'RE RUNNING A WALLET OF A LOWER VERSION YOU NEED TO UPDATE A.S.A.P.
 
