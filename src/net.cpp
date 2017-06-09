@@ -1138,6 +1138,9 @@ void MapPort()
 static const char *strDNSSeed[][2] = {
 		    	{"node1", "node1.stakeforum.com"},
 		    	{"node2", "node2.stakeforum.com"},
+			{"node3", "node3.stakeforum.com"},
+		    	{"node4", "node4.stakeforum.com"},
+
 
 };
 
