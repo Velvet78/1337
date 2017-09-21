@@ -42,6 +42,7 @@ static const unsigned int FORK_TIME2 = 1472125032; //  Thu, 25 Aug 2016 11:37:12
 static const unsigned int FORK_TIME3 = 1480081025; //  Fri, 25 Nov 2016 13:37:05 GMT
 static const unsigned int FORK_TIME4 = 1489357342; //  Sun, 12 Mar 2017 22:22:22 GMT
 static const unsigned int FORK_TIME5 = 1497101820; //  Saturday 10 June 2017 13:37:00
+static const unsigned int FORK_TIME6 = 1505150100; //  Sunday 24 Sept 2017 13:37:00
 
 inline bool MoneyRange(int64_t nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
 // Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp.
@@ -56,19 +57,19 @@ static const int fHaveUPnP = false;
 static const uint256 hashGenesisBlock("0x000004611c87517dfd29fe7f34bd6da2e1ad3d305ac12afe80a3229069390f68");
 static const uint256 hashGenesisBlockTestNet("0x000004611c87517dfd29fe7f34bd6da2e1ad3d305ac12afe80a3229069390f68");
 
-inline int64_t PastDrift(int64_t nTime)   
-{ 
-	if(nTime < FORK_TIME)
-		return nTime - 10 * 60; 
-	else
-		return nTime - 90;
+inline int64_t PastDrift(int64_t nTime)
+{
+    if(nTime < FORK_TIME)
+        return nTime - 10 * 60;
+    else
+        return nTime - 90;
 }
-inline int64_t FutureDrift(int64_t nTime) 
-{ 
-	if(nTime < FORK_TIME)
-		return nTime + 10 * 60;
-	else
-		return nTime + 90;
+inline int64_t FutureDrift(int64_t nTime)
+{
+    if(nTime < FORK_TIME)
+        return nTime + 10 * 60;
+    else
+        return nTime + 90;
 }
 
 extern libzerocoin::Params* ZCParams;
