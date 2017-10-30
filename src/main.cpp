@@ -3500,6 +3500,17 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
         if (ProcessBlock(pfrom, &block))
             mapAlreadyAskedFor.erase(inv);
+        else
+        {
+            // Be more aggressive with blockchain download. Send getblocks() message after
+            // an error related to new block download
+            int64_t TimeSinceBestBlock = GetTime() - nTimeBestReceived;
+            if (TimeSinceBestBlock > MAX_TIME_SINCE_BEST_BLOCK)
+            {
+                printf("INFO: Waiting %ld sec which is too long. Sending GetBlocks(0)\n", TimeSinceBestBlock);
+                pfrom->PushGetBlocks(pindexBest, uint256(0));
+            }
+        }
         if (block.nDoS) pfrom->Misbehaving(block.nDoS);
     }
 
