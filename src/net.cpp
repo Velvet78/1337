@@ -1141,9 +1141,9 @@ static const char *strDNSSeed[][2] = {
 			{"node3", "node3.stakeforum.com"},
 		    	{"node4", "node4.stakeforum.com"},
 			{"node5", "node5.stakeforum.com"},
-			{"node6", "node6.stakeforum.com"},
-			{"node7", "node7.stakeforum.com"},
-			{"node8", "node8.stakeforum.com"},
+			{"node6", "node1.1337coin.net"},
+			{"node7", "node2.1337coin.net"},
+			{"node8", "node3.1337coin.net"},
 	
 };
 
