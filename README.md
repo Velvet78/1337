@@ -1,3 +1,6 @@
+Update following in the first week of November. 
+
+
 1337 Current Version
 ===========================
 Version: 1.9.0.0
